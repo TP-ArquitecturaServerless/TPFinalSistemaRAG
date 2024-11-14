@@ -1,3 +1,5 @@
+import os
+import shutil
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi import FastAPI
@@ -18,10 +20,10 @@ app=FastAPI()
 # Configuración de CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Permitir solo los orígenes especificados
+    allow_origins=["http://localhost:5173"], 
     allow_credentials=True,
     allow_methods=["*"],     # Permitir todos los métodos (GET, POST, etc.)
-    allow_headers=["*"],     # Permitir todos los encabezados
+    allow_headers=["*"],     
 )
 
 #Configuracion de ollama 
@@ -49,6 +51,11 @@ embed_model= FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6
 persist_db="chroma_db_dir"
 #nombre de la coleccion
 collection_db="chroma_collection"
+
+# Eliminar y regenerar la carpeta de la base de datos si existe
+if os.path.exists(persist_db):
+    shutil.rmtree(persist_db)
+os.makedirs(persist_db, exist_ok=True)
 
 #Se crea la base de datos con los chunks
 vs=Chroma.from_documents(
