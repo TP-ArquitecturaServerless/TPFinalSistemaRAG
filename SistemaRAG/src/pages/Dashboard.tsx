@@ -8,6 +8,7 @@ import Recommendations from '../component/Recomendaciones';
 import addLike from '../services/likeService';
 import getLikedMovies from '../services/getLikeMovie';
 import ScaryEffect from './ScaryEffect';
+import ChatIA from './ChatIA';
 
 
 export default function Dashboard() {
@@ -168,9 +169,12 @@ export default function Dashboard() {
             </Link>
           </nav>
         </div>
+       
       </header>
+    
 
       <main className="container mx-auto mt-10 px-4 relative z-10">
+      <ChatIA/>
         
         {/* Recomendaciones Basadas en Likes */}
         <Recommendations likedMovies={likedMovies} movies={movies} />
@@ -285,7 +289,9 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
+        
         </div>
+       
       )}
     </div>
   );

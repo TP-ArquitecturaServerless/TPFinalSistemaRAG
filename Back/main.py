@@ -1,3 +1,7 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from langchain_ollama import ChatOllama 
 from langchain_community.document_loaders import PyMuPDFLoader 
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
@@ -7,6 +11,18 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA 
 
 
+
+#configurar FastAPI para que reciba la pregunta y devuelva la respues desde el fron
+app=FastAPI()
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Permitir solo los orígenes especificados
+    allow_credentials=True,
+    allow_methods=["*"],     # Permitir todos los métodos (GET, POST, etc.)
+    allow_headers=["*"],     # Permitir todos los encabezados
+)
 
 #Configuracion de ollama 
 llm= ChatOllama(model="llama3.2:1b")
@@ -80,11 +96,18 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs={'prompt': prompt}
 )
 
+#Se define el modelo de entrada
+class Question(BaseModel):
+    question:str
+
+#Se define la ruta de la api para recibir preguntas
+@app.post("/ask")
+async def ask_question(question:Question):
+    try:
+        resp=qa.invoke({"query":question.question})
+        return {"answer": resp['result']}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al procesar la pregunta.")
 
 
-#Se realiza la pregunta al modelo
-quest= input('Ingrese su pregunta: ')
-resp= qa.invoke({"query": quest})
-
-print(resp['result'])
 
